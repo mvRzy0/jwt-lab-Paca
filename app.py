@@ -20,14 +20,10 @@ def verificar_token():
         return None
     token = auth[len("Bearer "):]
     try:
-        header = jwt.get_unverified_header(token)
-        # VULNERABILIDAD 1: confiamos en el algoritmo que declara el propio token
-        if header.get("alg") == "none":
-            return jwt.decode(token, options={"verify_signature": False})
-        return jwt.decode(token, SECRET, algorithms=[header["alg"]])
+        # PARCHE: el servidor decide el algoritmo, no el token
+        return jwt.decode(token, SECRET, algorithms=["HS256"])
     except jwt.PyJWTError:
         return None
-
 
 @app.post("/login")
 def login():
